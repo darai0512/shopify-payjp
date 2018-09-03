@@ -7,17 +7,16 @@ PAYJP_OAUTH_CLIENT_ID='for_payid'
 SHOPIFY_HMAC_KEY='iU44RWxeik' # https://help.shopify.com/en/api/guides/payment-gateway/hosted-payment-sdk/develop-gateway
 ```
 
-### memo
+### Docs/Memo
+
+https://help.shopify.com/en/api/guides/payment-gateway/hosted-payment-sdk/checkout-process
 
 ```
 // 422 Unprocessable Entity
 
-// Notification acknowledgment failed
-// https://offsite-gateway-sim.shopifycloud.com/calculator
-throw new Error('invalid x_signature');
+// Notification acknowledgment failed = invalid x_signature
 
-// Unable to find checkout with id <x>
-throw new Error('invalid x_reference');
+// Unable to find checkout with id <x> = invalid x_reference
 
 // pending -> paid process
 // in x_url_callback
