@@ -8,21 +8,19 @@
   <body>
     <script type="text/javascript">
       function onCreated(payjpResponse) {
-        console.log(payjpResponse);
-        const data = {
-          card: payjpResponse.token,
-          amount: <%= amount %>,
-          currency: '<%= currency %>',
-        };
         window.fetch('/charges', {
-          body: JSON.stringify(data), // must match 'Content-Type' header
+          body: JSON.stringify({
+            card: payjpResponse.id,
+            x_signature: '<%= x_signature %>',
+          }),
           headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
           },
-          method: 'POST'
-        }).then((response) => response.json()
+          method: 'POST',
+          // timeout
+        }).then((response) => response.text()
         ).then((data) => {
-          location.href = '<%= urlComplete %>?' + data.params;
+          location.href = '<%= urlComplete %>?' + data;
         }).catch(err =>{
           location.href = '<%= urlCancel %>';
         });
@@ -42,10 +40,9 @@
       data-on-failed="onFailed"
       data-text="<%= shopName %>に<%= amount %>円をPayjpで支払う"
       data-submit-text="<%= shopName %>に<%= amount %>円を支払う"
-      data-name-placeholder=<%= name %>
       data-token-name="token"
       data-partial="true">
     </script>
-    <div><a href="<%= urlCancel %>>"></a></div>
+    <div><a href="<%= urlCancel %>>">キャンセル</a></div>
   </body>
 </html>
