@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>payjp-shopify-redirect-page</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  </head>
+  <body>
+    <script type="text/javascript">
+      function onCreated(payjpResponse) {
+        console.log(payjpResponse);
+        const data = {
+          card: payjpResponse.token,
+          amount: <%= amount %>,
+          currency: '<%= currency %>',
+        };
+        window.fetch('/charges', {
+          body: JSON.stringify(data), // must match 'Content-Type' header
+          headers: {
+            'content-type': 'application/json'
+          },
+          method: 'POST'
+        }).then((response) => response.json()
+        ).then((data) => {
+          location.href = '<%= urlComplete %>?' + data.params;
+        }).catch(err =>{
+          location.href = '<%= urlCancel %>';
+        });
+      }
+      function onFailed(statusCode, err) {
+        location.href = '<%= urlCancel %>';
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="https://checkout.pay.jp"
+      class="payjp-button"
+      data-key="<%= dataKey %>"
+      data-payjp="<%= dataPayjp %>"
+      data-lang="ja"
+      data-on-created="onCreated"
+      data-on-failed="onFailed"
+      data-text="<%= shopName %>に<%= amount %>円をPayjpで支払う"
+      data-submit-text="<%= shopName %>に<%= amount %>円を支払う"
+      data-name-placeholder=<%= name %>
+      data-token-name="token"
+      data-partial="true">
+    </script>
+    <div><a href="<%= urlCancel %>>"></a></div>
+  </body>
+</html>
