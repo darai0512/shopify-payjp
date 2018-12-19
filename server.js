@@ -2,12 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-const payjp = require('payjp')(process.env.PAYJP_PRIVATE_KEY);
 const qs = require('querystring');
 const crypto = require('crypto');
+const payjp = require('payjp');
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use('/public', express.static('public'));
 
 app.use(bodyParser.json({limit:'10mb'}));
 app.use(bodyParser.urlencoded({limit:'10mb', extended: false}));
@@ -56,7 +57,7 @@ app.post('/charges', async (req, res) => {
   } = memoryDB[req.body.x_signature];
   let payjpResponse;
   try {
-    payjpResponse = await payjp.charges.create({
+    payjpResponse = await payjp(process.env.PAYJP_PRIVATE_KEY).charges.create({
       card: req.body.card,
       amount: x_amount,
       currency: x_currency.toLowerCase(),
@@ -86,6 +87,14 @@ app.post('/charges', async (req, res) => {
   res.send(qs.stringify(params));
 });
 
+// for checkout
+app.get("/", (req, res) => {
+  res.render('checkout', {
+    dataKey: process.env.PAYJP_PUBLIC_KEY,
+    dataPayjp: process.env.PAYJP_OAUTH_CLIENT_ID,
+  });
+});
+
 const server = app.listen(process.env.PORT || 3000, function () {
-  console.log('Your app is listening on port ' + server.address().port);
+  console.log('http://localhost:' + server.address().port);
 });

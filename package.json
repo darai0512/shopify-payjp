@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:local": "export $(cat .env|xargs);node server.js"
   },
   "dependencies": {
     "body-parser": "^1.18.3",

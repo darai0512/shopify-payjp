@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>payjp-checkout</title>
+    <meta charset="utf-8">
+    <script src="https://storage.googleapis.com/prshim/v1/payment-shim.js">
+  </head>
+  <body>
+    <script type="text/javascript" src="/public/payjp.js"></script>
+    <script>
+    window.Payjp.setPublicKey('<%= dataKey %>');
+    window.Payjp.retrieveAvailability(console.log);
+    function onBuyClicked() {
+      if (!window.PaymentRequest) {
+        // PaymentRequest API is not available. Forwarding to
+        // legacy form based experience.
+        location.href = '/checkout';
+        return;
+      }
+
+      // Supported payment methods
+      var supportedInstruments = [{
+          supportedMethods: ['basic-card'],
+          data: {
+            supportedNetworks: [
+              'visa', 'mastercard', 'amex', 'discover',
+              'diners', 'jcb', 'unionpay'
+            ]
+          }
+      }];
+
+      // Checkout details
+      var details = {
+        displayItems: [{
+          label: 'ダンベル40kg + 20kgサービス',
+          amount: { currency: 'JPY', value: '10800' }
+        }, {
+          label: '送料',
+          amount: { currency: 'JPY', value: '20000' }
+        }],
+        total: {
+          label: '合計',
+          amount: { currency: 'JPY', value : '30800' }
+        }
+      };
+    
+      // 1. Create a `PaymentRequest` instance
+      // 1. `PaymentRequest` インスタンスを生成する
+      var request = new PaymentRequest(supportedInstruments, details);
+    
+      // 2. Show the native UI with `.show()`
+      // 2. `.show()` を呼び出して、ネイティブ UI を表示する
+      request.show()
+      // 3. Process the payment
+      // 3. 決済処理をおこなう
+      .then(result => {
+        // POST the payment information to the server
+    
+        const card = {
+            number: result.details.cardNumber,
+            exp_month: result.details.expiryMonth,
+            exp_year: result.details.expiryYear,
+            cvc: result.details.cardSecurityCode,
+        };
+    
+        Payjp.createToken(card, function(status, response) {
+          if (status == 200) {
+            document.getElementById('result').innerText = `PAY.JP Token: ${response.id}`;
+            return result.complete('success');
+          } else {
+            // handle error like displaying error message.
+            return result.complete('fail');
+          };
+        });
+    
+      });
+    }
+    
+    document.querySelector('#start').addEventListener('click', onBuyClicked);
+    </script>
+  </body>
+</html>
